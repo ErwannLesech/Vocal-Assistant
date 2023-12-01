@@ -6,7 +6,7 @@ load_dotenv(dotenv_path="config.conf")
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def get_response(prompt):
+def get_written_response(prompt):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[

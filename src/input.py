@@ -8,10 +8,12 @@ stream = audio.open(format=pyaudio.paInt16, channels=1, rate=44100, input=True, 
 frames = []
 
 def get_input(audio_file):
+    
     try:
         while True:
             data = stream.read(1024)
             frames.append(data)
+    
     except KeyboardInterrupt:
         print("Recording finished")
         stream.stop_stream()
