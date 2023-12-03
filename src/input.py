@@ -1,4 +1,4 @@
-import pyaudio
+"""import pyaudio
 import wave
 
 audio = pyaudio.PyAudio()
@@ -25,4 +25,28 @@ def get_input(audio_file):
         waveFile.setsampwidth(audio.get_sample_size(pyaudio.paInt16))
         waveFile.setframerate(44100)
         waveFile.writeframes(b''.join(frames))
-        waveFile.close()
+        waveFile.close()"""
+
+import pyttsx3
+import speech_recognition as sr
+
+listener = sr.Recognizer()
+engine = pyttsx3.init()
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[1].id)
+
+def get_audio():
+    command = ''
+    try:
+        with sr.Microphone() as source:
+            print('listening...')
+            voice = listener.listen(source)
+            command = listener.recognize_google(voice)
+            command = command.lower()
+            if 'mike' in command:
+                command = command.replace('mike', '')
+                print(command)
+                return command
+    except:
+        pass
+    return None

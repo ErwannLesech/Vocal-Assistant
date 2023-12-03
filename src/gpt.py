@@ -14,7 +14,7 @@ def get_written_response(prompt):
             {"role": "user", "content": prompt}
             ],
         temperature=0.9,
-        max_tokens=150,
+        max_tokens=1024,
     )
     
     return response["choices"][0]["message"]["content"]
