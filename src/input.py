@@ -43,9 +43,9 @@ def get_audio():
             voice = listener.listen(source)
             command = listener.recognize_google(voice)
             command = command.lower()
-            if 'mike' in command:
-                command = command.replace('mike', '')
-                print(command)
+            print(command)
+            if 'thomas' in command:
+                command = command.replace('thomas', '')
                 return command
     except:
         pass

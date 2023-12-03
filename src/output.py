@@ -13,5 +13,8 @@ print(elevenLabs_key)
 set_api_key(elevenLabs_key)
 
 def get_vocal_response(prompt):
-    audio = generate(prompt)
+    audio = generate(
+        prompt,
+        voice="Thomas"
+        )
     play(audio)
