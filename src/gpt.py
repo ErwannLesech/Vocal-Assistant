@@ -1,20 +1,27 @@
-from dotenv import load_dotenv
-import openai
 import os
+from openai import OpenAI
+from dotenv import load_dotenv
 
+# Load environment variables from config.conf
 load_dotenv(dotenv_path="config.conf")
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialize OpenAI client
+client = OpenAI()
 
 def get_written_response(prompt):
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are my personal vocal assistant."},
-            {"role": "user", "content": prompt}
-            ],
-        temperature=0.9,
-        max_tokens=1024,
-    )
+    try:
+        # Create a chat completion request
+        completion = client.chat.completions.create(
+            model="gpt-4o",  # Ensure this is the correct model
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        
+        # Extract and return the response text
+        return completion.choices[0].message.content.strip()
     
-    return response["choices"][0]["message"]["content"]
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None

@@ -39,14 +39,21 @@ def get_audio():
     command = ''
     try:
         with sr.Microphone() as source:
-            print('listening...')
-            voice = listener.listen(source)
+            print('Adjusting for ambient noise...')
+            listener.adjust_for_ambient_noise(source)
+            print('Listening...')
+            voice = listener.listen(source, timeout=5, phrase_time_limit=5)
+            print('Processing...')
             command = listener.recognize_google(voice)
             command = command.lower()
-            print(command)
+            print(f"Recognized command: {command}")
             if 'thomas' in command:
                 command = command.replace('thomas', '')
                 return command
-    except:
-        pass
+    except sr.UnknownValueError:
+        print("Google Speech Recognition could not understand audio")
+    except sr.RequestError as e:
+        print(f"Could not request results from Google Speech Recognition service; {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
     return None

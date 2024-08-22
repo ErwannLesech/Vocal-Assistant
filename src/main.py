@@ -1,13 +1,13 @@
 from input import get_audio
 # from whisper import get_transcript
 from gpt import get_written_response
-from output import get_vocal_response
+from output import generate_audio_file
 from handler import get_handled_response
 
 def main():
     transcript = get_audio()
     if transcript == None:
-        print("Finished")
+        print("Transcript is None")
         return
     # transcript = get_transcript(audio_file)
     print(transcript)
@@ -16,8 +16,8 @@ def main():
         print("Finished")
         return
     print(response)
-    get_vocal_response(response)
-    print("Finished")
+    generate_audio_file(response)
+    print("main.py: boucle finished")
 
 if __name__ == "__main__":
 
@@ -25,5 +25,5 @@ if __name__ == "__main__":
         try:
             main()
         except KeyboardInterrupt:
-            print("Finished")
+            print("main.py: KeyboardInterrupt")
             break

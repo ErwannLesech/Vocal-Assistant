@@ -10,7 +10,6 @@ load_dotenv(dotenv_path="config.conf")
 
 spotify_client_id = os.getenv("SPOTIFY_CLIENT_ID")
 spotify_client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
-
 spotify_device_id = os.getenv("SPOTIFY_DEVICE_ID")
 
 scope = "user-read-playback-state,user-modify-playback-state"
@@ -24,40 +23,80 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=spotify_client_id,
 open_weather_api_key = os.getenv("OPEN_WEATHER_API_KEY")
 city = "Lyon"
 
+def list_devices():
+    devices = sp.devices()
+    if devices['devices']:
+        return [device['id'] + ": " + device['name'] for device in devices['devices']]
+    else:
+        return ["No devices found"]
+
+def play_music():
+    try:
+        sp.start_playback(device_id=spotify_device_id)
+    except spotipy.exceptions.SpotifyException as e:
+        return f"Error playing music: {e}"
+
+def pause_music():
+    try:
+        sp.pause_playback(device_id=spotify_device_id)
+    except spotipy.exceptions.SpotifyException as e:
+        return f"Error pausing music: {e}"
+
+def next_track():
+    try:
+        sp.next_track(device_id=spotify_device_id)
+    except spotipy.exceptions.SpotifyException as e:
+        return f"Error skipping to next track: {e}"
+
+def previous_track():
+    try:
+        sp.previous_track(device_id=spotify_device_id)
+    except spotipy.exceptions.SpotifyException as e:
+        return f"Error going back to previous track: {e}"
+
+def get_current_song():
+    try:
+        current_track = sp.current_playback()
+        if current_track and current_track['is_playing']:
+            track_name = current_track['item']['name']
+            artist_name = current_track['item']['artists'][0]['name']
+            return f"Currently playing '{track_name}' by {artist_name}"
+        else:
+            return "No music is currently playing"
+    except spotipy.exceptions.SpotifyException as e:
+        return f"Error getting current song: {e}"
+
 def get_handled_response(transcript):
     response = ""
-
-    if "play" in transcript:
-        # if play is the last word
-        if transcript.split()[-1] == "play":
-            sp.start_playback(device_id=spotify_device_id)
-        else:
-            sp.search(q=transcript.split("play")[1], limit=1, type="track")
-            sp.start_playback(device_id=spotify_device_id)
-        response = None
-    elif "stop" in transcript or "pause" in transcript:
-        sp.pause_playback(device_id=spotify_device_id)
-        response = None
-    elif "next music" in transcript:
-        sp.next_track(device_id=spotify_device_id)
-        response = None
-    elif "previous music" in transcript:
-        sp.previous_track(device_id=spotify_device_id)
-        response = None
-    elif "music" in transcript:
-        current_music = sp.current_playback()
-        response = "The playing music is " + current_music["item"]["name"] + " by " + current_music["item"]["artists"][0]["name"]
-        
-    elif "time" in transcript:
+    
+    if "time" in transcript:
         date = datetime.datetime.now().strftime('%A %B %d, %Y')
         time = datetime.datetime.now().strftime('%I:%M %p')
-        response = "We are the " + date + "It is " + time
+        response = f"We are on {date}. It is {time}."
 
     elif "weather" in transcript:
-        url = "https://api.openweathermap.org/data/2.5/weather?lat=45.76&lon=4.83&appid=" + open_weather_api_key
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={open_weather_api_key}"
         res = requests.get(url)
-        response = "The weather at " + city + " is " + res.json()["weather"][0]["description"] + " and the temperature is " + str(round(res.json()["main"]["temp"] - 273.15)) + " degrees celsius"
+        weather_data = res.json()
+        description = weather_data["weather"][0]["description"]
+        temperature = round(weather_data["main"]["temp"] - 273.15)
+        response = f"The weather in {city} is {description} and the temperature is {temperature} degrees Celsius."
 
+    elif "play" in transcript:
+        response = play_music()
+
+    elif "pause" in transcript or "stop" in transcript:
+        response = pause_music()
+
+    elif "next" in transcript:
+        response = next_track()
+
+    elif "previous" in transcript:
+        response = previous_track()
+
+    elif "music" in transcript:
+        response = get_current_song()
+    
     else:
         response = get_written_response(transcript)
     
